@@ -20,29 +20,36 @@ handler.handleReqRes = (req, res) => {
         method,
         query,
         headers
-    }
+    };
+
     const decoder = new StringDecoder('utf-8');
     let decodedData = '';
 
-    const chooseHandler = routes[trimPath] ? routes[trimPath] : notFoundHandler;
+    const chooseHandler = routes[trimPath] ? routes[trimPath] : notFoundHandler; // function
 
-    chooseHandler(requestProperties, (statusCode, payload) => {
-        statusCode = typeof statusCode === 'number' ? statusCode : 500;
-        payload = typeof parseUrl === 'object' ? payload : {};
 
-        const payloadString = JSON.stringify(payload)
-        res.writeHead(statusCode);
-        res.end(payloadString)
-    })
     req.on('data', (buffer) => {
         decodedData += decoder.write(buffer);
     });
 
     req.on('end', () => {
         decodedData += decoder.end();
-        console.log(decodedData)
+
+        chooseHandler(requestProperties, (statusCode, payload) => {
+            statusCode = typeof statusCode === 'number' ? statusCode : 500;
+            payload = typeof parseUrl === 'object' ? payload : {};
+
+            const payloadString = JSON.stringify(payload)
+            res.writeHead(statusCode);
+            res.end(payloadString)
+        })
+
         res.end('Api monitoring App')
     })
+
+
+
+
 }
 
 module.exports = handler;
