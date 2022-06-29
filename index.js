@@ -1,5 +1,10 @@
 const http = require('http');
+const { handleReqRes } = require('./helpers/handleReqRes')
 
+const url = require('url');
+const { StringDecoder } = require('string_decoder');
+const { notFoundHandler } = require('./handlers/routeHandlers/notFoundHandler');
+const routes = require('./routes/routes')
 
 const app = {};
 
@@ -17,9 +22,7 @@ app.createServer = () => {
 };
 
 // handle Request and Response
-app.handleReqRes = (req, res) => {
-    res.end('Hello world')
-}
+app.handleReqRes = handleReqRes;
 
 // start server
 app.createServer();
