@@ -75,6 +75,6 @@ lib.delete = (dir, file, callback) => {
             callback('Error in delete!')
         }
     })
-}
+};
 
 module.exports = lib;

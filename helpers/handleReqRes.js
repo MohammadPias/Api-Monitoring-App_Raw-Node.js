@@ -1,7 +1,8 @@
 const url = require('url');
 const { StringDecoder } = require('string_decoder');
 const { notFoundHandler } = require('../handlers/routeHandlers/notFoundHandler');
-const routes = require('../routes/routes')
+const routes = require('../routes/routes');
+const { parseString } = require('./utilities')
 
 const handler = {}
 
@@ -35,16 +36,20 @@ handler.handleReqRes = (req, res) => {
     req.on('end', () => {
         decodedData += decoder.end();
 
+        requestProperties.body = parseString(decodedData);
+
         chooseHandler(requestProperties, (statusCode, payload) => {
             statusCode = typeof statusCode === 'number' ? statusCode : 500;
             payload = typeof parseUrl === 'object' ? payload : {};
 
             const payloadString = JSON.stringify(payload)
+
+            res.setHeader('content-type', 'application/json')
             res.writeHead(statusCode);
             res.end(payloadString)
         })
 
-        res.end('Api monitoring App')
+        // res.end('Api monitoring App')
     })
 
 

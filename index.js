@@ -11,9 +11,9 @@ const myData = {
     roll: 55,
     name: 'Rohan Chowdhury'
 }
-lib.delete('test', 'newFile', (err) => {
+/* lib.delete('test', 'newFile', (err) => {
     console.log(`Error was ${err}`)
-})
+}) */
 
 // server 
 app.createServer = () => {
