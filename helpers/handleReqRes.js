@@ -38,6 +38,7 @@ handler.handleReqRes = (req, res) => {
 
         requestProperties.body = parseString(decodedData);
 
+        // console.log(requestProperties)
         chooseHandler(requestProperties, (statusCode, payload) => {
             statusCode = typeof statusCode === 'number' ? statusCode : 500;
             payload = typeof parseUrl === 'object' ? payload : {};

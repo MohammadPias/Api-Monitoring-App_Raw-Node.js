@@ -1,6 +1,7 @@
 const lib = require('../../library/data');
 const { hash } = require('../../helpers/utilities');
-const { parseString } = require('../../helpers/utilities')
+const { parseString } = require('../../helpers/utilities');
+const tokenHandlers = require('../../handlers/routeHandlers/tokenHandler')
 
 
 const handler = {};
@@ -21,15 +22,26 @@ handler._users = {}
 // handle get request
 handler._users.get = (requestProperties, callback) => {
     const phone = typeof (requestProperties.query.phone) === 'string' && requestProperties.query.phone.trim().length === 11 ? requestProperties.query.phone : false;
-    if (phone) {
-        lib.read('users', phone, (err, data) => {
-            if (!err) {
-                const user = { ...parseString(data) }
-                delete user.password;
 
-                callback(200, user)
+    // console.log(tokenHandlers._token)
+    if (phone) {
+
+        const tokenId = typeof (requestProperties.headers.token) === 'string' ? requestProperties.headers.token : false;
+
+        tokenHandlers._token.verify(tokenId, phone, (token) => {
+            if (token) {
+                lib.read('users', phone, (err, data) => {
+                    if (!err) {
+                        const user = { ...parseString(data) }
+                        delete user.password;
+
+                        callback(200, user)
+                    } else {
+                        callback(404, 'User was not found!')
+                    }
+                })
             } else {
-                callback('404', 'User was not found!')
+                callback(403, 'User was not Authenticated!')
             }
         })
     } else {
@@ -88,26 +100,35 @@ handler._users.put = (requestProperties, callback) => {
 
     if (phone) {
         if (firstName || lastName || password) {
-            lib.read('users', phone, (err, data) => {
-                if (!err && data) {
-                    const user = { ...parseString(data) }
-                    if (firstName) {
-                        user.firstName = firstName;
-                    }
-                    if (lastName) {
-                        user.lastName = lastName;
-                    }
-                    if (password) {
-                        user.password = hash(password);
-                    }
 
-                    lib.update('users', phone, user, (err) => {
-                        if (!err) {
-                            callback(200, { message: 'Your profile was updated successfully!' })
+            const tokenId = typeof (requestProperties.headers.token) === 'string' ? requestProperties.headers.token : false;
+
+            tokenHandlers._token.verify(tokenId, phone, (token) => {
+                if (token) {
+                    lib.read('users', phone, (err, data) => {
+                        if (!err && data) {
+                            const user = { ...parseString(data) }
+                            if (firstName) {
+                                user.firstName = firstName;
+                            }
+                            if (lastName) {
+                                user.lastName = lastName;
+                            }
+                            if (password) {
+                                user.password = hash(password);
+                            }
+
+                            lib.update('users', phone, user, (err) => {
+                                if (!err) {
+                                    callback(200, { message: 'Your profile was updated successfully!' })
+                                }
+                            })
+                        } else {
+                            callback(500, { error: 'User was not found' })
                         }
                     })
                 } else {
-                    callback(500, { error: 'User was not found' })
+                    callback(403, 'User was not Authenticated!')
                 }
             })
         } else {
@@ -120,19 +141,30 @@ handler._users.put = (requestProperties, callback) => {
 
 // handle delete request
 handler._users.delete = (requestProperties, callback) => {
+
     const phone = typeof (requestProperties.body.phone) === 'string' && requestProperties.body.phone.trim().length === 11 ? requestProperties.body.phone : false;
+
     if (phone) {
-        lib.read('users', phone, (err, data) => {
-            if (!err && data) {
-                lib.delete('users', phone, (err) => {
-                    if (!err) {
-                        callback(200, { message: 'User was deleted successfully!' })
+
+        const tokenId = typeof (requestProperties.headers.token) === 'string' ? requestProperties.headers.token : false;
+
+        tokenHandlers._token.verify(tokenId, phone, (token) => {
+            if (token) {
+                lib.read('users', phone, (err, data) => {
+                    if (!err && data) {
+                        lib.delete('users', phone, (err) => {
+                            if (!err) {
+                                callback(200, { message: 'User was deleted successfully!' })
+                            } else {
+                                callback(500, { error: 'You can not delete!' })
+                            }
+                        })
                     } else {
-                        callback(500, { error: 'You can not delete!' })
+                        callback(500, { error: 'User was not found!' })
                     }
                 })
             } else {
-                callback(500, { error: 'User was not found!' })
+                callback(403, 'User was not Authenticated!')
             }
         })
     } else {
@@ -143,9 +175,9 @@ handler._users.delete = (requestProperties, callback) => {
 module.exports = handler;
 
 /* console.log(JSON.stringify({
-    firstName: 'Noor',
-    lastName: 'Mohammad',
-    phone: '01222434232',
+    firstName: 'Akash',
+    lastName: 'Chowdhury',
+    phone: '01823807576',
     password: '123456',
     toAgreement: true,
 })) */

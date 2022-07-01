@@ -1,19 +1,10 @@
 const http = require('http');
 const { handleReqRes } = require('./helpers/handleReqRes')
 const environment = require('./helpers/environments');
-const lib = require('./library/data');
 
 
 const app = {};
 
-const myData = {
-    class: 10,
-    roll: 55,
-    name: 'Rohan Chowdhury'
-}
-/* lib.delete('test', 'newFile', (err) => {
-    console.log(`Error was ${err}`)
-}) */
 
 // server 
 app.createServer = () => {
