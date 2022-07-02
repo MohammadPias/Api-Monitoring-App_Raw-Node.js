@@ -41,7 +41,7 @@ handler.handleReqRes = (req, res) => {
         // console.log(requestProperties)
         chooseHandler(requestProperties, (statusCode, payload) => {
             statusCode = typeof statusCode === 'number' ? statusCode : 500;
-            payload = typeof parseUrl === 'object' ? payload : {};
+            payload = typeof payload === 'object' ? payload : {};
 
             const payloadString = JSON.stringify(payload)
 

@@ -88,7 +88,7 @@ handler._token.put = (requestProperties, callback) => {
             console.log(err)
             if (!err && tokenData) {
                 const token = { ...parseString(tokenData) }
-                if (token.expires < Date.now()) {
+                if (token.expires > Date.now()) {
                     token.expires = Date.now() + 60 * 60 * 1000;
                     lib.update('tokens', tokenId, token, (err) => {
                         console.log(err)
@@ -99,7 +99,7 @@ handler._token.put = (requestProperties, callback) => {
                         }
                     })
                 } else {
-                    callback(500, { error: 'Token did not expire yet!' })
+                    callback(500, { error: 'Token already was expired!' })
                 }
             } else {
                 callback(500, { error: 'token was already expired' })
